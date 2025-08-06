@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+npm-debug.log*
+.node_repl_history
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
