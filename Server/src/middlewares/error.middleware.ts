@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import type { ApiError } from "../utils/apiError.js";
+import type { Request, Response, NextFunction } from 'express';
+import type { ApiError } from '../utils/apiError.js';
 
 export const errorHandler = (
   err: ApiError,
@@ -11,8 +11,8 @@ export const errorHandler = (
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: err.message || 'Internal Server Error',
     errors: err.errors || [],
-    stack: process.env.NODE_ENV === "production" ? undefined : err.stack,
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };

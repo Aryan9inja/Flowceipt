@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-console.log("✅ Environment variables loaded");
+console.log('✅ Environment variables loaded');

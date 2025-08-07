@@ -1,23 +1,23 @@
-import { User, type IUser } from "../models/users.model.js";
-import { ApiError } from "../utils/apiError.js";
-import { ApiResponse } from "../utils/apiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import jwt from "jsonwebtoken";
-import type { CookieOptions, Request, RequestHandler, Response } from "express";
-import { ENV } from "../config/env.js";
-import type { UserDocument } from "../models/users.model.js";
+import { User, type IUser } from '../models/users.model.js';
+import { ApiError } from '../utils/apiError.js';
+import { ApiResponse } from '../utils/apiResponse.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import jwt from 'jsonwebtoken';
+import type { CookieOptions, Request, RequestHandler, Response } from 'express';
+import { ENV } from '../config/env.js';
+import type { UserDocument } from '../models/users.model.js';
 
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "none" as const,
+  sameSite: 'none' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: "/",
+  path: '/',
 };
 
 const generateAccessAndRefreshTokens = async (userId: string) => {
   const user = await User.findById(userId);
-  if (!user) throw new ApiError(404, "User not found");
+  if (!user) throw new ApiError(404, 'User not found');
 
   const refreshToken = user.generateRefreshToken();
   const accessToken = user.generateAccessToken();
@@ -37,17 +37,17 @@ const registerUser: RequestHandler = asyncHandler(
     password = password?.trim();
 
     if (!name || !email || !password) {
-      throw new ApiError(400, "All fields are required");
+      throw new ApiError(400, 'All fields are required');
     }
 
     const existingUser = (await User.findOne({ email })) as UserDocument;
     if (existingUser) {
-      throw new ApiError(409, "User with this email already exists");
+      throw new ApiError(409, 'User with this email already exists');
     }
 
     const user = await User.create({ name, email, password });
     if (!user || !user._id) {
-      throw new ApiError(500, "Failed to register user");
+      throw new ApiError(500, 'Failed to register user');
     }
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
@@ -60,13 +60,13 @@ const registerUser: RequestHandler = asyncHandler(
 
     res
       .status(201)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions)
       .json(
         new ApiResponse(
           201,
           { user: userObj, accessToken },
-          "User registered successfully"
+          'User registered successfully'
         )
       );
   }
@@ -80,16 +80,16 @@ const loginUser: RequestHandler = asyncHandler(
     password = password?.trim();
 
     if (!email || !password) {
-      throw new ApiError(409, "All fields are required");
+      throw new ApiError(409, 'All fields are required');
     }
 
     const user = (await User.findOne({ email })) as UserDocument;
     if (!user) {
-      throw new ApiError(404, "User not found");
+      throw new ApiError(404, 'User not found');
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
-    if (!isPasswordValid) throw new ApiError(401, "Password is incorrect");
+    if (!isPasswordValid) throw new ApiError(401, 'Password is incorrect');
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
       user._id.toString()
@@ -101,8 +101,8 @@ const loginUser: RequestHandler = asyncHandler(
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', refreshToken, cookieOptions)
       .json(
         new ApiResponse(
           200,
@@ -110,7 +110,7 @@ const loginUser: RequestHandler = asyncHandler(
             user: userObj,
             accessToken,
           },
-          "Login successfull"
+          'Login successfull'
         )
       );
   }
@@ -118,7 +118,7 @@ const loginUser: RequestHandler = asyncHandler(
 
 const logoutUser: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
-    if (!req.user) throw new ApiError(401, "Not authenticated");
+    if (!req.user) throw new ApiError(401, 'Not authenticated');
 
     await User.findByIdAndUpdate(
       req.user._id,
@@ -128,9 +128,9 @@ const logoutUser: RequestHandler = asyncHandler(
 
     res
       .status(200)
-      .clearCookie("accessToken", cookieOptions)
-      .clearCookie("refreshToken", cookieOptions)
-      .json(new ApiResponse(200, {}, "User logged out"));
+      .clearCookie('accessToken', cookieOptions)
+      .clearCookie('refreshToken', cookieOptions)
+      .json(new ApiResponse(200, {}, 'User logged out'));
   }
 );
 
@@ -138,7 +138,7 @@ const refreshAccessToken: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const incomingRefreshToken = req.cookies.refreshToken;
 
-    if (!incomingRefreshToken) throw new ApiError(401, "Missing refresh token");
+    if (!incomingRefreshToken) throw new ApiError(401, 'Missing refresh token');
 
     const decoded = jwt.verify(
       incomingRefreshToken,
@@ -147,7 +147,7 @@ const refreshAccessToken: RequestHandler = asyncHandler(
 
     const user = (await User.findById(decoded._id)) as UserDocument;
     if (!user || user.refreshToken !== incomingRefreshToken) {
-      throw new ApiError(403, "Invalid refresh token");
+      throw new ApiError(403, 'Invalid refresh token');
     }
 
     const { accessToken, refreshToken: newRefreshToken } =
@@ -155,16 +155,16 @@ const refreshAccessToken: RequestHandler = asyncHandler(
 
     res
       .status(200)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", newRefreshToken, cookieOptions)
-      .json(new ApiResponse(200, { accessToken }, "Access token refreshed"));
+      .cookie('accessToken', accessToken, cookieOptions)
+      .cookie('refreshToken', newRefreshToken, cookieOptions)
+      .json(new ApiResponse(200, { accessToken }, 'Access token refreshed'));
   }
 );
 
 const getCurrentUser: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const user = req.user;
-    if (!user) throw new ApiError(401, "Unauthorized");
+    if (!user) throw new ApiError(401, 'Unauthorized');
 
     const { _id, name, email } = user;
     res
@@ -173,7 +173,7 @@ const getCurrentUser: RequestHandler = asyncHandler(
         new ApiResponse(
           200,
           { user: { _id, name, email } },
-          "Current user fetched"
+          'Current user fetched'
         )
       );
   }

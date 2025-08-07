@@ -1,9 +1,9 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { ENV } from "../config/env.js";
-import type { JwtExpiry } from "../types/jwtExpiry.types.js";
-import type { HydratedDocument, Types } from "mongoose";
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { ENV } from '../config/env.js';
+import type { JwtExpiry } from '../types/jwtExpiry.types.js';
+import type { HydratedDocument, Types } from 'mongoose';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -33,7 +33,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: [true, 'Password is required'],
     },
     refreshToken: {
       type: String,
@@ -42,8 +42,8 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   try {
     this.password = await bcrypt.hash(this.password, 10);
     next();
@@ -73,4 +73,4 @@ userSchema.methods.generateRefreshToken = function (): string {
 };
 
 export type UserDocument = HydratedDocument<IUser>;
-export const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
