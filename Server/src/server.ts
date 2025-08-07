@@ -1,12 +1,26 @@
-import express from "express";
+import { app } from "./app.js";
+import { connectDB } from "./db/index.js";
+import dotenv from "dotenv"
 
-const app = express();
-const PORT = 3000;
+dotenv.config({
+  path:"./src/.env"
+})
 
-app.get("/", (_req, res) => {
-  res.send("Hello from Flowceipt server!");
-});
+const port = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
-  console.log("✅ Typescript added and server is running on port: ", PORT);
-});
+(async function startServer() {
+  try {
+    await connectDB();
+
+    const server = app.listen(port, () => {
+      console.log("Server started at port: ", port);
+    });
+    server.on("error", (error) => {
+      console.error("Error occured while booting up the server: ", error);
+      process.exit(1);
+    });
+  } catch (error) {
+    console.error("Mongo DB connection error!! ", error);
+    process.exit(1);
+  }
+})();
