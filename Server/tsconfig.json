@@ -1,34 +1,27 @@
 {
   "compilerOptions": {
-    /* File structure */
     "rootDir": "src",
     "outDir": "dist",
-
-    /* Module and environment */
-    "target": "es2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "lib": ["ESNext"],
     "types": ["node"],
-
-    /* Output files */
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-
-    /* Strict type checking */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-
-    /* Module behavior */
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-
-    /* Performance */
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleDetection": "force"        
   },
-  "include": ["src"],
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["src", "src/types"],
   "exclude": ["node_modules", "dist"]
 }

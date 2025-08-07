@@ -3,14 +3,21 @@ import mongoose from "mongoose";
 
 export const connectDB = async (): Promise<void> => {
   try {
-    console.log(`${process.env.DB_URI}`)
-    const connectionInstance = await mongoose.connect(
-      `${process.env.DB_URI}/${DB_NAME}`
-    );
+    const dbUri = process.env.DB_URI;
+
+    if (!dbUri) {
+      throw new Error("❌ DB_URI is not defined in environment variables");
+    }
+
+    const fullUri = `${dbUri}/${DB_NAME}`;
+
+    const connectionInstance = await mongoose.connect(fullUri);
+
     console.log(
-      `MongoDb connected successfully with host: ${connectionInstance.connection.host}`
+      `✅ MongoDB connected successfully with host: ${connectionInstance.connection.host}`
     );
   } catch (error) {
-    throw error instanceof Error ? error : new Error(String(error));
+    console.error("❌ MongoDB connection failed:", error);
+    throw error;
   }
 };

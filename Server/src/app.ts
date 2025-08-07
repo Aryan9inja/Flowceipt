@@ -2,16 +2,22 @@ import express from "express";
 import type { Application } from "express";
 import cors from "cors";
 import { API_STRING } from "./constants.js";
+import cookieParser from "cookie-parser";
+import { errorHandler } from "./middlewares/error.middleware.js";
+import userRouter from "./routes/user.routes.js";
 
 const app: Application = express();
 
 app.use(
   cors({
-    origin: process.env.CORS,
+    origin: process.env.CORS || "http://localhost:5173",
+    credentials: true,
   })
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get(`${API_STRING}/ping`, (_, res) => {
   res.status(200).json({
@@ -19,5 +25,8 @@ app.get(`${API_STRING}/ping`, (_, res) => {
     message: "Pong! Server is running",
   });
 });
+app.use("/api/v1/users", userRouter);
+
+app.use(errorHandler);
 
 export { app };
