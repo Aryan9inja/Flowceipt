@@ -23,7 +23,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.0",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
