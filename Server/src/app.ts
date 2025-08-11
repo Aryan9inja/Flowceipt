@@ -5,6 +5,7 @@ import { API_STRING } from './constants.js';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/error.middleware.js';
 import userRouter from './routes/user.routes.js';
+import receiptRouter from './routes/receipt.routes.js';
 
 const app: Application = express();
 
@@ -25,7 +26,9 @@ app.get(`${API_STRING}/ping`, (_, res) => {
     message: 'Pong! Server is running',
   });
 });
-app.use('/api/v1/users', userRouter);
+
+app.use(`${API_STRING}/users`, userRouter);
+app.use(`${API_STRING}/receipts`, receiptRouter);
 
 app.use(errorHandler);
 

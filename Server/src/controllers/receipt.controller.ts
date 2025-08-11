@@ -6,45 +6,122 @@ import { ApiError } from '../utils/apiError';
 import { ApiResponse } from '../utils/apiResponse';
 import type { Request, Response } from 'express';
 import { Receipt } from '../models/receipts.model';
-import { parseReceiptText } from '../utils/parseReceiptText';
+import { extractDataFromOCR } from '../services/aiService';
 
-const uploadReceipt: RequestHandler = asyncHandler(
+const uploadReceipt: RequestHandler = asyncHandler(async (req, res) => {
+  const file = req.file;
+  if (!file) throw new ApiError(400, 'No file uploaded');
+
+  const cloudinaryUrl = await uploadToCloudinary(file.buffer);
+  if (!cloudinaryUrl) throw new ApiError(500, 'Receipt image upload failed');
+
+  const receipt = await Receipt.create({
+    owner: req.user?._id,
+    imageUrl: cloudinaryUrl,
+    status: 'pending',
+  });
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, receipt, 'Receipt uploaded successfully'));
+});
+
+const processReceipt: RequestHandler = asyncHandler(async (req, res) => {
+  const { receiptId } = req.body;
+  if (!receiptId) throw new ApiError(400, 'Receipt ID is required');
+
+  const receipt = await Receipt.findOne({
+    _id: receiptId,
+    owner: req.user?._id,
+  });
+  if (!receipt) throw new ApiError(404, 'Receipt not found');
+
+  try {
+    const ocrText = await runOCR(receipt.imageUrl);
+    if (!ocrText) throw new ApiError(500, 'OCR failed');
+
+    receipt.ocrRawText = ocrText;
+    receipt.status = 'processing';
+    await receipt.save({ validateModifiedOnly: true });
+
+    res.status(200).json(new ApiResponse(200, receipt, 'OCR ran successfully'));
+  } catch (error) {
+    receipt.status = 'failed';
+    await receipt.save({ validateModifiedOnly: true });
+    throw error;
+  }
+});
+
+const extractReceiptData: RequestHandler = asyncHandler(async (req, res) => {
+  const { receiptId } = req.body;
+  if (!receiptId) throw new ApiError(400, 'Receipt ID is required');
+
+  const receipt = await Receipt.findOne({
+    _id: receiptId,
+    owner: req.user?._id,
+  });
+  if (!receipt) throw new ApiError(404, 'Receipt not found');
+
+  if (!receipt.ocrRawText)
+    throw new ApiError(404, 'No raw OCR text to supply to AI');
+
+  try {
+    const extractedData = await extractDataFromOCR(receipt.ocrRawText);
+    receipt.extractedData = extractedData;
+    receipt.status = 'completed';
+    await receipt.save({ validateModifiedOnly: true });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, receipt, 'AI extracted data successfully'));
+  } catch (error) {
+    receipt.status = 'failed';
+    await receipt.save({ validateModifiedOnly: true });
+    throw error;
+  }
+});
+
+const getReceipts: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
-    const file = req.file;
-    if (!file) throw new ApiError(400, 'No file uploaded');
+    const user = req.user?._id;
 
-    const receipt = await Receipt.create({
-      owner: req.user?._id,
-      status: 'processing',
-      imageUrl: '',
-      extractedData: { items: [] },
-    });
+    if (!user) throw new ApiError(404, 'User not found');
 
-    try {
-      const [ocrText, cloudinaryUrl] = await Promise.all([
-        runOCR(file.buffer),
-        uploadToCloudinary(file.buffer),
-      ]);
+    const receipts = await Receipt.find({ owner: user })
+      .select('-ocrRawText')
+      .sort({ createdAt: -1 });
 
-      const extractedData = parseReceiptText(ocrText);
-
-      receipt.imageUrl = cloudinaryUrl;
-      ((receipt.ocrRawText = ocrText),
-        (receipt.extractedData = extractedData),
-        (receipt.status = 'completed'),
-        await receipt.save());
-
-      res
-        .status(201)
-        .json(
-          new ApiResponse(201, { receipt }, 'Receipt processed successfully')
-        );
-    } catch (error) {
-      receipt.status = 'failed';
-      await receipt.save();
-      throw error;
-    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, receipts, 'Receipts fetched successfully'));
   }
 );
 
-export { uploadReceipt };
+const getReceiptById: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const user = req.user?._id;
+    const receiptId = req.params.id;
+
+    if (!user) throw new ApiError(404, 'User not found');
+    if (!receiptId) throw new ApiError(404, 'No receipt Id sent');
+
+    const receipt = await Receipt.findOne({
+      _id: receiptId,
+      owner: user,
+    }).select('-ocrRawText');
+
+    if (!receipt) throw new ApiError(404, 'No receipt found');
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, receipt, 'Receipt fetched successfully'));
+  }
+);
+
+export {
+  uploadReceipt,
+  processReceipt,
+  extractReceiptData,
+  getReceipts,
+  getReceiptById,
+};
