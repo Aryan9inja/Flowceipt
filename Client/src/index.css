@@ -1,68 +1,72 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+/* Define the "dark" variant */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@theme {
+  /* Light theme (default) */
+  --color-bg: #f9fafb;
+  --color-text: #1f2937;
+  --color-card: #ffffff;
+  --color-border: #e5e7eb;
+  --color-muted: #9ca3af;
+  --color-muted-hover: #6b7280;
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-focus: #1e40af;
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
+  --color-secondary: #6b7280;
+  --color-secondary-hover: #4b5563;
+  --color-secondary-focus: #374151;
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+  --color-success: #16a34a;
+  --color-success-hover: #15803d;
+  --color-success-focus: #166534;
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  --color-warning-focus: #b45309;
+
+  --color-error: #dc2626;
+  --color-error-hover: #b91c1c;
+  --color-error-focus: #991b1b;
+
+  --color-info: #0ea5e9;
+  --color-info-hover: #0284c7;
+  --color-info-focus: #0369a1;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Dark theme — scoped only when .dark is applied */
+.dark {
+  --color-bg: #111827;
+  --color-text: #f3f4f6;
+  --color-card: #1f2937;
+  --color-border: #374151;
+  --color-muted: #9ca3af;
+  --color-muted-hover: #d1d5db;
+
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --color-primary-focus: #2563eb;
+
+  --color-secondary: #9ca3af;
+  --color-secondary-hover: #d1d5db;
+  --color-secondary-focus: #e5e7eb;
+
+  --color-success: #4ade80;
+  --color-success-hover: #22c55e;
+  --color-success-focus: #16a34a;
+
+  --color-warning: #fbbf24;
+  --color-warning-hover: #f59e0b;
+  --color-warning-focus: #d97706;
+
+  --color-error: #f87171;
+  --color-error-hover: #ef4444;
+  --color-error-focus: #dc2626;
+
+  --color-info: #38bdf8;
+  --color-info-hover: #0ea5e9;
+  --color-info-focus: #0284c7;
 }
