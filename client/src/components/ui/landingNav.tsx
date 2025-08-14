@@ -25,15 +25,17 @@ function LandingNav() {
 
         <div className="hidden md:flex items-center gap-4">
           <Link
-            to="/register"
+            to="/auth"
             aria-label="Register"
+            state={{ initialMode: "signup" }}
             className="bg-primary hover:bg-primary-hover text-white/80 py-2 px-4 rounded-2xl"
           >
             Register
           </Link>
           <Link
-            to="/login"
+            to="/auth"
             aria-label="Login"
+            state={{ initialMode: "login" }}
             className="bg-primary hover:bg-primary-hover text-white/80 py-2 px-4 rounded-2xl"
           >
             Login
