@@ -5,25 +5,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, signUpSchema } from "../../schemas/authSchema";
 import FormInputBox from "../ui/formInput";
 
-type AuthFormData = {
-  name?: string;
+type LoginData = {
   email: string;
   password: string;
 };
 
-export default function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true);
+type SignupData = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+interface AuthFormProps {
+  initialMode?: "signup" | "login";
+}
+
+export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === "login");
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<AuthFormData>({
-    resolver: zodResolver(isLogin ? loginSchema : signUpSchema),
+    register: registerLogin,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+  } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: AuthFormData) => {
-    console.log(isLogin ? "Login data:" : "Signup data:", data);
+  const {
+    register: registerSignup,
+    handleSubmit: handleSignupSubmit,
+    formState: { errors: signupErrors },
+  } = useForm<SignupData>({
+    resolver: zodResolver(signUpSchema),
+  });
+
+  const onLoginSubmit = (data: LoginData) => {
+    console.log("Login data:", data);
+  };
+
+  const onSignupSubmit = (data: SignupData) => {
+    console.log("Signup data:", data);
   };
 
   return (
@@ -79,23 +100,23 @@ export default function AuthForm() {
         >
           {/* Login Form */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleLoginSubmit(onLoginSubmit)}
             className="w-1/2 pr-1 space-y-4"
           >
             <FormInputBox
               label="Email Address"
-              id="email"
+              id="login-email"
               placeholder="Enter your email"
-              register={register("email")}
-              error={errors.email?.message as string}
+              register={registerLogin("email")}
+              error={loginErrors.email?.message as string}
             />
             <FormInputBox
               label="Password"
-              id="password"
+              id="login-password"
               type="password"
               placeholder="Enter your password"
-              register={register("password")}
-              error={errors.password?.message as string}
+              register={registerLogin("password")}
+              error={loginErrors.password?.message as string}
             />
             <div className="text-sm justify-self-center">
               <h1 className="text-text">Welcome back!!!</h1>
@@ -120,30 +141,30 @@ export default function AuthForm() {
 
           {/* Signup Form */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSignupSubmit(onSignupSubmit)}
             className="w-1/2 pl-1 space-y-4"
           >
             <FormInputBox
               label="Name"
-              id="name"
+              id="signup-name"
               placeholder="Enter your name"
-              register={register("name")}
-              error={errors.name?.message as string}
+              register={registerSignup("name")}
+              error={signupErrors.name?.message as string}
             />
             <FormInputBox
               label="Email Address"
-              id="email"
+              id="signup-email"
               placeholder="Enter your email"
-              register={register("email")}
-              error={errors.email?.message as string}
+              register={registerSignup("email")}
+              error={signupErrors.email?.message as string}
             />
             <FormInputBox
               label="Password"
-              id="password"
+              id="signup-password"
               type="password"
               placeholder="Enter your password"
-              register={register("password")}
-              error={errors.password?.message as string}
+              register={registerSignup("password")}
+              error={signupErrors.password?.message as string}
             />
             <button
               type="submit"
