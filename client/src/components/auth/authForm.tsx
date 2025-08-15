@@ -4,30 +4,35 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, signUpSchema } from "../../schemas/authSchema";
 import FormInputBox from "../ui/formInput";
-
-type LoginData = {
-  email: string;
-  password: string;
-};
-
-type SignupData = {
-  name: string;
-  email: string;
-  password: string;
-};
+import type {
+  RegisterFormData,
+  LoginCredentials,
+} from "../../services/authService";
+import type { AppDispatch, RootState } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { loginThunk, signUpThunk } from "../../store/thunks/authThunk";
+import { useNavigate } from "react-router-dom";
 
 interface AuthFormProps {
   initialMode?: "signup" | "login";
+  onAuthResult?: (status: "success" | "error", message: string) => void;
 }
 
-export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
+export default function AuthForm({
+  initialMode = "login",
+  onAuthResult,
+}: AuthFormProps) {
+  const loading = useSelector((state: RootState) => state.auth.loading);
+  const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [isLogin, setIsLogin] = useState(initialMode === "login");
 
   const {
     register: registerLogin,
     handleSubmit: handleLoginSubmit,
     formState: { errors: loginErrors },
-  } = useForm<LoginData>({
+  } = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -35,16 +40,30 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
     register: registerSignup,
     handleSubmit: handleSignupSubmit,
     formState: { errors: signupErrors },
-  } = useForm<SignupData>({
+  } = useForm<RegisterFormData>({
     resolver: zodResolver(signUpSchema),
   });
 
-  const onLoginSubmit = (data: LoginData) => {
-    console.log("Login data:", data);
+  const onLoginSubmit = async (data: LoginCredentials) => {
+    try {
+      await dispatch(loginThunk(data)).unwrap();
+      onAuthResult?.("success", "Logged in successfully!");
+      navigate("/home");
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      onAuthResult?.("error", err || "Login failed");
+    }
   };
 
-  const onSignupSubmit = (data: SignupData) => {
-    console.log("Signup data:", data);
+  const onSignupSubmit = async (data: RegisterFormData) => {
+    try {
+      await dispatch(signUpThunk(data)).unwrap();
+      onAuthResult?.("success", "Account created successfully!");
+      navigate("/home");
+    } catch (err: any) {
+      console.error("Signup failed:", err);
+      onAuthResult?.("error", err || "Signup failed");
+    }
   };
 
   return (
@@ -123,10 +142,15 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
             </div>
             <button
               type="submit"
-              className="relative w-full h-11 sm:h-12 text-lg font-medium text-white rounded-xl overflow-hidden bg-primary hover:bg-primary-hover focus:ring-2 focus:ring-primary-focus transition"
+              disabled={loading}
+              className={clsx(
+                "relative w-full h-11 sm:h-12 text-lg font-medium text-white rounded-xl overflow-hidden bg-primary hover:bg-primary-hover focus:ring-2 focus:ring-primary-focus transition",
+                loading && "opacity-70 cursor-not-allowed"
+              )}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
+
             <div className="text-center text-sm">
               Not a member?{" "}
               <button
@@ -168,9 +192,13 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
             />
             <button
               type="submit"
-              className="relative w-full h-11 sm:h-12 text-lg font-medium text-white rounded-xl overflow-hidden bg-primary hover:bg-primary-hover focus:ring-2 focus:ring-primary-focus transition"
+              disabled={loading}
+              className={clsx(
+                "relative w-full h-11 sm:h-12 text-lg font-medium text-white rounded-xl overflow-hidden bg-primary hover:bg-primary-hover focus:ring-2 focus:ring-primary-focus transition",
+                loading && "opacity-70 cursor-not-allowed"
+              )}
             >
-              Signup
+              {loading ? "Registering..." : "Signup"}
             </button>
           </form>
         </div>
