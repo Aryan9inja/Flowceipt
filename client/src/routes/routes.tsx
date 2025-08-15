@@ -1,11 +1,15 @@
 import { Route, Routes } from "react-router-dom";
 import AuthPage from "../pages/authPage";
 import HomePage from "../pages/homePage";
+import Home from "../components/home/home";
+import ProtectedRoute from "../components/auth/protectedRoute";
 
 const publicRoutes = [
   { path: "/", element: <HomePage /> },
   { path: "/auth", element: <AuthPage /> },
 ];
+
+const protectedRoutes = [{ path: "/home", element: <Home /> }];
 
 const AppRoutes = () => {
   return (
@@ -13,6 +17,12 @@ const AppRoutes = () => {
       {publicRoutes.map(({ path, element }) => (
         <Route key={path} path={path} element={element} />
       ))}
+
+      <Route element={<ProtectedRoute />}>
+        {protectedRoutes.map(({ path, element }) => (
+          <Route key={path} path={path} element={element} />
+        ))}
+      </Route>
     </Routes>
   );
 };
