@@ -48,7 +48,7 @@ export default function AuthForm({
     try {
       await dispatch(loginThunk(data)).unwrap();
       onAuthResult?.("success", "Logged in successfully!");
-      navigate("/home");
+      navigate("/dashboard");
     } catch (err: any) {
       console.error("Login failed:", err);
       onAuthResult?.("error", err || "Login failed");
@@ -59,7 +59,7 @@ export default function AuthForm({
     try {
       await dispatch(signUpThunk(data)).unwrap();
       onAuthResult?.("success", "Account created successfully!");
-      navigate("/home");
+      navigate("/dashboard");
     } catch (err: any) {
       console.error("Signup failed:", err);
       onAuthResult?.("error", err || "Signup failed");

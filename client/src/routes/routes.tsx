@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import AuthPage from "../pages/authPage";
 import HomePage from "../pages/homePage";
-import Home from "../components/home/home";
+import Home from "../components/home/dashboard";
 import ProtectedRoute from "../components/auth/protectedRoute";
 
 const publicRoutes = [
@@ -9,7 +9,7 @@ const publicRoutes = [
   { path: "/auth", element: <AuthPage /> },
 ];
 
-const protectedRoutes = [{ path: "/home", element: <Home /> }];
+const protectedRoutes = [{ path: "/dashboard", element: <Home /> }];
 
 const AppRoutes = () => {
   return (
