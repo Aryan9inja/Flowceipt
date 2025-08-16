@@ -1,9 +1,9 @@
 import { useState } from "react";
-import ThemeSlider from "../ui/themeSlider";
+import ThemeSlider from "../themeSlider";
 import { Link } from "react-router-dom";
-import Logo from "../../assets/Logo.png";
-import DarkLogo from "../../assets/DarkLogo.png";
-import { useTheme } from "../../hooks/useTheme";
+import Logo from "../../../assets/Logo.png";
+import DarkLogo from "../../../assets/DarkLogo.png";
+import { useTheme } from "../../../hooks/useTheme";
 import { Menu, X } from "lucide-react";
 
 function LandingNav() {
