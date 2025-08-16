@@ -118,10 +118,42 @@ const getReceiptById: RequestHandler = asyncHandler(
   }
 );
 
+const updateReceiptMetaData: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { receiptId, transactionType, paymentStatus } = req.body;
+
+    if (!receiptId) throw new ApiError(400, 'Receipt Id is required');
+
+    const receipt = await Receipt.findOne({
+      _id: receiptId,
+      owner: req.user?._id,
+    });
+    if (!receipt) throw new ApiError(404, 'Receipt not found');
+
+    if (transactionType && !['expense', 'income'].includes(transactionType)) {
+      throw new ApiError(400, 'Invalid receipt type');
+    }
+
+    if (paymentStatus && !['pending', 'completed'].includes(paymentStatus)) {
+      throw new ApiError(400, 'Invalid payment status');
+    }
+
+    if (transactionType) receipt.transactionType = transactionType;
+    if (paymentStatus) receipt.paymentStatus = paymentStatus;
+
+    await receipt.save({ validateModifiedOnly: true });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, receipt, 'Receipt meta data added'));
+  }
+);
+
 export {
   uploadReceipt,
   processReceipt,
   extractReceiptData,
   getReceipts,
   getReceiptById,
+  updateReceiptMetaData,
 };
