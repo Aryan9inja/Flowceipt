@@ -15,7 +15,7 @@ export async function extractDataFromOCR(ocrRawText: string) {
         {
           role: 'system',
           content:
-            'You will receive OCR extracted text from a receipt. Extract structured fields like vendor, date, total, and items.The items is an array of object with name and price where name is mandatory. Respond in JSON format only, without any explanations, markdown, or code fences',
+            'You will receive OCR extracted text from a receipt. Extract structured fields like vendor, date(in DD-MM-YYYY format), total, and items.The items is an array of object with name and price where name is mandatory.Some fields might not be present sometimes. Respond in JSON format only, without any explanations, markdown, or code fences',
         },
         {
           role: 'user',
