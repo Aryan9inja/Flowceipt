@@ -1,11 +1,11 @@
 import { Receipt } from '../models/receipts.model';
 import mongoose from 'mongoose';
 
-const getTotalReceipts = async (userId: string) => {
+const getTotalReceipts = async (userId: mongoose.Types.ObjectId) => {
   const result = await Receipt.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: userId,
       },
     },
     {
@@ -15,11 +15,11 @@ const getTotalReceipts = async (userId: string) => {
   return result[0]?.totalReceipts || 0;
 };
 
-const getTotalSpent = async (userId: string) => {
+const getTotalSpent = async (userId: mongoose.Types.ObjectId) => {
   const result = await Receipt.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: userId,
         transactionType: 'expense',
       },
     },
@@ -35,11 +35,11 @@ const getTotalSpent = async (userId: string) => {
   return result[0]?.totalSpent || 0;
 };
 
-const getTotalEarned = async (userId: string) => {
+const getTotalEarned = async (userId: mongoose.Types.ObjectId) => {
   const result = await Receipt.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: userId,
         transactionType: 'income',
       },
     },
@@ -55,11 +55,11 @@ const getTotalEarned = async (userId: string) => {
   return result[0]?.totalEarned || 0;
 };
 
-const getMonthlyEarnedTrend = async (userId: string) => {
+const getMonthlyEarnedTrend = async (userId: mongoose.Types.ObjectId) => {
   return await Receipt.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: userId,
         transactionType: 'income',
       },
     },
@@ -110,11 +110,11 @@ const getMonthlyEarnedTrend = async (userId: string) => {
   ]);
 };
 
-const getMonthlySpentTrend = async (userId: string) => {
+const getMonthlySpentTrend = async (userId: mongoose.Types.ObjectId) => {
   return await Receipt.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: userId,
         transactionType: 'expense',
       },
     },

@@ -7,6 +7,22 @@ import { ApiResponse } from '../utils/apiResponse';
 import type { Request, Response } from 'express';
 import { Receipt } from '../models/receipts.model';
 import { extractDataFromOCR } from '../services/aiService';
+import {
+  getMonthlyEarnedTrend,
+  getMonthlySpentTrend,
+  getTotalEarned,
+  getTotalReceipts,
+  getTotalSpent,
+} from '../repositories/receiptRepositories';
+
+interface DashboardData {
+  owner: string;
+  totalReceipts: number;
+  totalSpent: number;
+  totalEarned: number;
+  monthlyEarnedTrend: Array<any>;
+  monthlySpentTrend: Array<any>;
+}
 
 const uploadReceipt: RequestHandler = asyncHandler(async (req, res) => {
   const file = req.file;
@@ -149,6 +165,43 @@ const updateReceiptMetaData: RequestHandler = asyncHandler(
   }
 );
 
+const receiptDashboardData: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+
+    if (!userId) throw new ApiError(404, 'User not found');
+
+    try {
+      const totalReceipts = await getTotalReceipts(userId);
+      const totalSpent = await getTotalSpent(userId);
+      const totalEarned = await getTotalEarned(userId);
+      const monthlyEarnedTrend = await getMonthlyEarnedTrend(userId);
+      const monthlySpentTrend = await getMonthlySpentTrend(userId);
+
+      const dashboardData: DashboardData = {
+        owner: String(userId),
+        totalReceipts,
+        totalSpent,
+        totalEarned,
+        monthlyEarnedTrend,
+        monthlySpentTrend,
+      };
+
+      res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            dashboardData,
+            'Dashboard data fetched successfully'
+          )
+        );
+    } catch (error) {
+      throw new ApiError(500, 'Aggregation process failed');
+    }
+  }
+);
+
 export {
   uploadReceipt,
   processReceipt,
@@ -156,4 +209,5 @@ export {
   getReceipts,
   getReceiptById,
   updateReceiptMetaData,
+  receiptDashboardData
 };

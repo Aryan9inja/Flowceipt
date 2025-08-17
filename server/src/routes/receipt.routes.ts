@@ -6,6 +6,7 @@ import {
   getReceiptById,
   getReceipts,
   processReceipt,
+  receiptDashboardData,
   updateReceiptMetaData,
   uploadReceipt,
 } from '../controllers/receipt.controller';
@@ -16,7 +17,8 @@ router.post('/upload', verifyJWT, upload.single('receipt'), uploadReceipt);
 router.post('/process', verifyJWT, processReceipt);
 router.post('/extract', verifyJWT, extractReceiptData);
 router.get('/', verifyJWT, getReceipts);
-router.get('/:id', verifyJWT, getReceiptById);
+router.get('/dashboard', verifyJWT, receiptDashboardData);
 router.post('/meta', verifyJWT, updateReceiptMetaData);
+router.get('/:id', verifyJWT, getReceiptById);
 
 export default router;
