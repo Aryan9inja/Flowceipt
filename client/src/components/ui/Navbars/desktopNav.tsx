@@ -2,7 +2,7 @@ import { useTheme } from "../../../hooks/useTheme";
 import DarkLogo from "../../../assets/DarkLogo.png";
 import Logo from "../../../assets/Logo.png";
 import { NavLink } from "react-router-dom";
-import { Home, FileText, BarChart, User } from "lucide-react";
+import { Home, FileText, BarChart, User, Sun, Moon } from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
@@ -12,7 +12,11 @@ const navItems = [
 ];
 
 const DesktopNav = () => {
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
     <aside className="left-0 bg-bg border-r h-screen w-52 flex flex-col gap-8">
@@ -48,6 +52,26 @@ const DesktopNav = () => {
           })}
         </ul>
       </nav>
+
+      {/* Theme Toggle */}
+      <div className="px-4 pb-6">
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-2 w-full p-2 rounded-lg bg-card hover:bg-primary-hover transition-colors text-text"
+        >
+          {theme === "dark" ? (
+            <>
+              <Sun className="w-5 h-5 text-yellow-400" />
+              <span>Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-5 h-5 text-indigo-500" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </button>
+      </div>
     </aside>
   );
 };
