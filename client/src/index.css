@@ -70,3 +70,44 @@
   --color-info-hover: #0ea5e9;
   --color-info-focus: #0284c7;
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-hover);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-muted) var(--color-bg);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--color-card);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-hover);
+}
+
+.dark * {
+  scrollbar-color: var(--color-muted) var(--color-card);
+}
