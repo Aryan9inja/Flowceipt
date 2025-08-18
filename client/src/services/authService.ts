@@ -11,13 +11,10 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface AuthResponse {
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-  accessToken: string;
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
 }
 
 export interface ApiError {
@@ -29,10 +26,13 @@ export interface ApiError {
  */
 export const registerUser = async (
   formData: RegisterFormData
-): Promise<AuthResponse> => {
+): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>("/users/register", formData);
-    return response.data;
+    const { data } = await axios.post<{ data: { user: User } }>(
+      "/users/register",
+      formData
+    );
+    return data.data.user;
   } catch (error: any) {
     throw error?.response?.data || { message: "Error registering user" };
   }
@@ -43,10 +43,13 @@ export const registerUser = async (
  */
 export const loginUser = async (
   credentials: LoginCredentials
-): Promise<AuthResponse> => {
+): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>("/users/login", credentials);
-    return response.data;
+    const { data } = await axios.post<{ data: { user: User } }>(
+      "/users/login",
+      credentials
+    );
+    return data.data.user;
   } catch (error: any) {
     throw error?.response?.data || { message: "Error logging in" };
   }
@@ -55,10 +58,12 @@ export const loginUser = async (
 /**
  * Refresh access token using refresh token
  */
-export const refreshTokens = async (): Promise<AuthResponse> => {
+export const refreshTokens = async (): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>("/users/refresh-tokens");
-    return response.data;
+    const { data } = await axios.post<{ data: { user: User } }>(
+      "/users/refresh-tokens"
+    );
+    return data.data.user;
   } catch (error: any) {
     throw error?.response?.data || { message: "Error refreshing tokens" };
   }
@@ -69,8 +74,8 @@ export const refreshTokens = async (): Promise<AuthResponse> => {
  */
 export const logoutUser = async (): Promise<{ message: string }> => {
   try {
-    const response = await axios.post<{ message: string }>("/users/logout");
-    return response.data;
+    const { data } = await axios.post<{ message: string }>("/users/logout");
+    return data;
   } catch (error: any) {
     throw error?.response?.data || { message: "Error logging out" };
   }
@@ -79,10 +84,10 @@ export const logoutUser = async (): Promise<{ message: string }> => {
 /**
  * Get details of the current authenticated user
  */
-export const getCurrentUser = async (): Promise<AuthResponse["user"]> => {
+export const getCurrentUser = async (): Promise<User> => {
   try {
-    const response = await axios.get<AuthResponse["user"]>("/users/me");
-    return response.data;
+    const { data } = await axios.get<{ data: { user: User } }>("/users/me");
+    return data.data.user;
   } catch (error: any) {
     throw error?.response?.data || { message: "Error fetching current user" };
   }
