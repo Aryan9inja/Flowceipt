@@ -159,7 +159,7 @@ const getMonthlySpentTrend = async (userId: mongoose.Types.ObjectId) => {
         _id: 0,
         year: '$_id.year',
         month: '$_id.month',
-        totalEarned: 1,
+        totalSpent: 1,
       },
     },
   ]);
