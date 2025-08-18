@@ -22,6 +22,7 @@ interface DashboardData {
   totalEarned: number;
   monthlyEarnedTrend: Array<any>;
   monthlySpentTrend: Array<any>;
+  lastFiveReceipts: Array<any>;
 }
 
 const uploadReceipt: RequestHandler = asyncHandler(async (req, res) => {
@@ -177,6 +178,10 @@ const receiptDashboardData: RequestHandler = asyncHandler(
       const totalEarned = await getTotalEarned(userId);
       const monthlyEarnedTrend = await getMonthlyEarnedTrend(userId);
       const monthlySpentTrend = await getMonthlySpentTrend(userId);
+      const lastFiveReceipts = await Receipt.find({ owner: userId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('extractedData.total extractedData.date extractedData.vendor transactionType paymentStatus');
 
       const dashboardData: DashboardData = {
         owner: String(userId),
@@ -185,6 +190,7 @@ const receiptDashboardData: RequestHandler = asyncHandler(
         totalEarned,
         monthlyEarnedTrend,
         monthlySpentTrend,
+        lastFiveReceipts,
       };
 
       res
@@ -209,5 +215,5 @@ export {
   getReceipts,
   getReceiptById,
   updateReceiptMetaData,
-  receiptDashboardData
+  receiptDashboardData,
 };
