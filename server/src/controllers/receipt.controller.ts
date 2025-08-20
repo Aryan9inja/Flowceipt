@@ -101,16 +101,44 @@ const extractReceiptData: RequestHandler = asyncHandler(async (req, res) => {
 const getReceipts: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const user = req.user?._id;
-
     if (!user) throw new ApiError(404, 'User not found');
+
+    const { limit, page } = req.query;
+
+    let limit_int = 10;
+    if (typeof limit === 'string') {
+      const parsed = parseInt(limit, 10);
+      if (!Number.isNaN(parsed)) limit_int = parsed;
+    }
+
+    let page_int = 1;
+    if (typeof page === 'string') {
+      const parsed = parseInt(page, 10);
+      if (!Number.isNaN(parsed)) page_int = parsed;
+    }
+
+    const skip = (page_int - 1) * limit_int;
 
     const receipts = await Receipt.find({ owner: user })
       .select('-ocrRawText')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit_int);
 
-    res
-      .status(200)
-      .json(new ApiResponse(200, receipts, 'Receipts fetched successfully'));
+    const totalDocuments = await Receipt.countDocuments({ owner: user });
+
+    res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          receipts,
+          page: page_int,
+          totalReceipts: totalDocuments,
+          totalPages: Math.ceil(totalDocuments / limit_int),
+        },
+        'Receipts fetched successfully'
+      )
+    );
   }
 );
 
@@ -181,7 +209,9 @@ const receiptDashboardData: RequestHandler = asyncHandler(
       const lastFiveReceipts = await Receipt.find({ owner: userId })
         .sort({ createdAt: -1 })
         .limit(5)
-        .select('extractedData.total extractedData.date extractedData.vendor transactionType paymentStatus');
+        .select(
+          'extractedData.total extractedData.date extractedData.vendor transactionType paymentStatus'
+        );
 
       const dashboardData: DashboardData = {
         owner: String(userId),
