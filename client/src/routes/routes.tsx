@@ -4,6 +4,7 @@ import HomePage from "../pages/homePage";
 import Dashboard from "../components/home/dashboard";
 import ProtectedRoute from "../components/auth/protectedRoute";
 import ProfilePage from "../pages/profilePage";
+import ReceiptPage from "../pages/receiptsPage";
 
 const publicRoutes = [
   { path: "/", element: <HomePage /> },
@@ -13,6 +14,7 @@ const publicRoutes = [
 const protectedRoutes = [
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/profile", element: <ProfilePage /> },
+  { path: "/receipts", element: <ReceiptPage /> },
 ];
 
 const AppRoutes = () => {
