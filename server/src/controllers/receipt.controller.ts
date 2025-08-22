@@ -14,7 +14,6 @@ import {
   getTotalReceipts,
   getTotalSpent,
 } from '../repositories/receiptRepositories';
-import { json } from 'stream/consumers';
 
 interface DashboardData {
   owner: string;
