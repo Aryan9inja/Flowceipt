@@ -1,164 +1,173 @@
 import { axios } from "../lib/axios";
 
-interface ReceiptResponse {
+export interface DecimalValue {
+  $numberDecimal: string;
+}
+
+export interface ReceiptItem {
+  _id?: string;
+  name: string;
+  price?: DecimalValue;
+}
+
+export interface ReceiptResponse {
   _id: string;
   imageUrl: string;
   extractedData: {
-    total?: number;
+    total?: DecimalValue;
     date?: string;
     vendor?: string;
-    items: { name: string; price?: number }[];
+    items: ReceiptItem[];
   };
   transactionType?: "expense" | "income";
   createdAt: string;
   paymentStatus: "pending" | "completed";
+  status?: string;
+  owner?: string;
+  updatedAt?: string;
+}
+
+export interface ApiResponse<T> {
+  statusCode: number;
+  data: T;
+  message: string;
+  success: boolean;
+}
+
+export interface PaginatedReceipts {
+  receipts: ReceiptResponse[];
+  page: number;
+  totalReceipts: number;
+  totalPages: number;
 }
 
 export interface DashboardData {
   totalReceipts: number;
   totalSpent: number;
   totalEarned: number;
-
-  monthlyEarnedTrend: {
-    totalEarned: number;
-    year: number;
-    month: number;
-  }[];
-
-  monthlySpentTrend: {
-    year: number;
-    month: number;
-    totalSpent: number;
-  }[];
-
+  monthlyEarnedTrend: { totalEarned: number; year: number; month: number }[];
+  monthlySpentTrend: { totalSpent: number; year: number; month: number }[];
   lastFiveReceipts: {
     extractedData: {
-      total:{
-        $numberDecimal:number
-      };
+      total: DecimalValue;
       date: string;
       vendor: string;
-      _id: string;
     };
-    transactionType:string,
-    paymentStatus:string
+    _id: string;
+    transactionType: string;
+    paymentStatus: string;
   }[];
 }
 
-
-interface DashboardResponse {
-  statusCode: number;
-  data: DashboardData;
-  message: string;
-  success: boolean;
-}
-
-/**
- * Upload a receipt
- * @param {File} file - Receipt Image file
- */
-export const uploadReceipt = async (file: File): Promise<String> => {
+/** Upload a receipt */
+export const uploadReceipt = async (file: File): Promise<string> => {
   try {
-    const response = await axios.post<ReceiptResponse>(
+    const response = await axios.post<ApiResponse<ReceiptResponse>>(
       "/receipts/upload",
       file
     );
-    return response.data._id;
+    return response.data.data._id;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Receipt Upload failed" };
+    throw error || "Receipt upload failed";
   }
 };
 
-/**
- * Process receipt through OCR
- * @param {string} receiptId - Id of receipt to be processed
- */
-export const processReceipt = async (receiptId: string): Promise<String> => {
+/** Process receipt through OCR */
+export const processReceipt = async (receiptId: string): Promise<string> => {
   try {
-    const response = await axios.post<ReceiptResponse>("/receipts/process", {
-      receiptId,
-    });
-    return response.data._id;
+    const response = await axios.post<ApiResponse<ReceiptResponse>>(
+      "/receipts/process",
+      { receiptId }
+    );
+    return response.data.data._id;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Receipt Upload failed" };
+    throw error || "Receipt processing failed";
   }
 };
 
-/**
- * Extract receipt data using AI
- * @param {string} receiptId - Receipt Id for AI data extraction
- */
+/** Extract receipt data using AI */
 export const extractReceiptData = async (
   receiptId: string
 ): Promise<ReceiptResponse> => {
   try {
-    const response = await axios.post<ReceiptResponse>("/receipts/extract", {
-      receiptId,
-    });
-    return response.data;
+    const response = await axios.post<ApiResponse<ReceiptResponse>>(
+      "/receipts/extract",
+      { receiptId }
+    );
+    return response.data.data;
   } catch (error: any) {
-    throw error?.response?.data || { message: "AI data extraction failed" };
+    throw error || "AI data extraction failed";
   }
 };
 
-/**
- * Add meta data to receipt
- * @param {string} receiptId -Receipt Id to add meta data
- * @param {string} transactionType - Type of transaction (income or expense)
- * @param {string} paymentStatus - Status of payment (completed or pending)
- */
+/** Add meta data to receipt */
 export const addReceiptMetaData = async (
   receiptId: string,
-  transactionType: string,
-  paymentStatus: string
+  transactionType: "income" | "expense",
+  paymentStatus: "completed" | "pending"
 ): Promise<ReceiptResponse> => {
   try {
-    const response = await axios.post<ReceiptResponse>("/receipts/meta", {
-      receiptId,
-      transactionType,
-      paymentStatus,
-    });
-    return response.data;
+    const response = await axios.post<ApiResponse<ReceiptResponse>>(
+      "/receipts/meta",
+      { receiptId, transactionType, paymentStatus }
+    );
+    return response.data.data;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Could not add meta data" };
+    throw error || "Could not add meta data";
   }
 };
 
-/**
- * Get all receipts
- */
-export const getReceipts = async (): Promise<ReceiptResponse[]> => {
+/** Get paginated receipts */
+export const getReceipts = async (
+  limit = 10,
+  page = 1
+): Promise<PaginatedReceipts> => {
   try {
-    const response = await axios.get<ReceiptResponse[]>("/receipts");
-    return response.data;
+    const response = await axios.get<ApiResponse<PaginatedReceipts>>(
+      `/receipts`,{params:{limit,page}}
+    );
+    return response.data.data;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Failed to fetch receipts" };
+    throw error || "Failed to fetch receipts";
   }
 };
 
-/**
- * Get receipt by id
- * @param {string} receiptId -Receipt Id to fetch
- */
+/** Get receipt by ID */
 export const getReceiptById = async (
   receiptId: string
 ): Promise<ReceiptResponse> => {
   try {
-    const response = await axios.get<ReceiptResponse>(`/receipts/${receiptId}`);
-    return response.data;
+    const response = await axios.get<ApiResponse<ReceiptResponse>>(
+      `/receipts/${receiptId}`
+    );
+    return response.data.data;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Failed to fetch receipt" };
+    throw error || "Failed to fetch receipt";
   }
 };
 
-/**
- * Get dashboard data
- */
+/** Get dashboard data */
 export const getDashboardData = async (): Promise<DashboardData> => {
   try {
-    const response = await axios.get<DashboardResponse>("/receipts/dashboard");
+    const response = await axios.get<ApiResponse<DashboardData>>(
+      "/receipts/dashboard"
+    );
     return response.data.data;
   } catch (error: any) {
-    throw error?.response?.data || { message: "Couldn't get dashboard data" };
+    throw error || "Couldn't get dashboard data";
+  }
+};
+
+/** Search receipts by vendor name */
+export const searchReceiptsByVendor = async (
+  searchTerm: string
+): Promise<ReceiptResponse[]> => {
+  try {
+    const response = await axios.get<ApiResponse<ReceiptResponse[]>>(
+      `/receipts/search?searchTerm=${searchTerm}`
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw error || "Failed to search receipts";
   }
 };
