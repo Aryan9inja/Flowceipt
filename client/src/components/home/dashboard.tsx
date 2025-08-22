@@ -231,12 +231,12 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="space-y-3 max-h-[22rem] sm:max-h-none sm:flex-1 sm:min-h-0 overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[22rem] sm:max-h-none sm:flex-1 sm:min-h-0 overflow-y-auto scroll-smooth pr-1">
               {dashboardData?.lastFiveReceipts &&
               dashboardData.lastFiveReceipts.length > 0 ? (
                 dashboardData.lastFiveReceipts.map((receipt) => (
                   <div
-                    key={receipt.extractedData._id}
+                    key={receipt._id}
                     className="flex items-center justify-between p-2 sm:p-3 bg-bg rounded-xl shadow-sm"
                   >
                     <div className="flex items-center space-x-2">
