@@ -14,6 +14,7 @@ import {
   getTotalReceipts,
   getTotalSpent,
 } from '../repositories/receiptRepositories';
+import { json } from 'stream/consumers';
 
 interface DashboardData {
   owner: string;
@@ -207,7 +208,7 @@ const receiptDashboardData: RequestHandler = asyncHandler(
       const monthlyEarnedTrend = await getMonthlyEarnedTrend(userId);
       const monthlySpentTrend = await getMonthlySpentTrend(userId);
       const lastFiveReceipts = await Receipt.find({ owner: userId })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt:-1 })
         .limit(5)
         .select(
           'extractedData.total extractedData.date extractedData.vendor transactionType paymentStatus'
@@ -238,6 +239,26 @@ const receiptDashboardData: RequestHandler = asyncHandler(
   }
 );
 
+const searchReceiptsByVender: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { searchTerm } = req.query;
+
+    if (!searchTerm || typeof searchTerm !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Search term query parameter is required',
+      });
+    }
+
+    const receipts = await Receipt.find({
+      owner: req.user?._id,
+      'extractedData.vendor': { $regex: searchTerm, $options: 'i' },
+    }).select('-ocrRawText');
+
+    res.status(200).json(new ApiResponse(200, receipts, 'Receipts found'));
+  }
+);
+
 export {
   uploadReceipt,
   processReceipt,
@@ -246,4 +267,5 @@ export {
   getReceiptById,
   updateReceiptMetaData,
   receiptDashboardData,
+  searchReceiptsByVender,
 };
