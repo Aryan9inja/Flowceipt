@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Application } from 'express';
 import cors from 'cors';
-import { API_STRING } from './constants.js';
+import { API_STRING, limit } from './constants.js';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/error.middleware.js';
 import userRouter from './routes/user.routes.js';
@@ -16,8 +16,8 @@ app.use(
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit:limit }));
+app.use(express.urlencoded({ extended: true, limit: limit }));
 app.use(cookieParser());
 
 app.get(`${API_STRING}/ping`, (_, res) => {
