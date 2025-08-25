@@ -7,7 +7,7 @@ export interface DecimalValue {
 export interface ReceiptItem {
   _id?: string;
   name: string;
-  price?: DecimalValue;
+  price?: number;
 }
 
 export interface ReceiptResponse {
@@ -62,10 +62,19 @@ export interface DashboardData {
 /** Upload a receipt */
 export const uploadReceipt = async (file: File): Promise<string> => {
   try {
+    const formData = new FormData();
+    formData.append("receipt", file);
+
     const response = await axios.post<ApiResponse<ReceiptResponse>>(
       "/receipts/upload",
-      file
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+
     return response.data.data._id;
   } catch (error: any) {
     throw error || "Receipt upload failed";
@@ -124,7 +133,8 @@ export const getReceipts = async (
 ): Promise<PaginatedReceipts> => {
   try {
     const response = await axios.get<ApiResponse<PaginatedReceipts>>(
-      `/receipts`,{params:{limit,page}}
+      `/receipts`,
+      { params: { limit, page } }
     );
     return response.data.data;
   } catch (error: any) {
