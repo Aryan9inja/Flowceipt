@@ -5,6 +5,7 @@ import Dashboard from "../components/home/dashboard";
 import ProtectedRoute from "../components/auth/protectedRoute";
 import ProfilePage from "../pages/profilePage";
 import ReceiptPage from "../pages/receiptsPage";
+import ReviewNewReceipt from "../components/receipts/ReviewNewReceipt";
 
 const publicRoutes = [
   { path: "/", element: <HomePage /> },
@@ -15,6 +16,7 @@ const protectedRoutes = [
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/profile", element: <ProfilePage /> },
   { path: "/receipts", element: <ReceiptPage /> },
+  { path: "/receipts/review", element: <ReviewNewReceipt /> },
 ];
 
 const AppRoutes = () => {
