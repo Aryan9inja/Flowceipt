@@ -58,7 +58,7 @@ const processReceipt: RequestHandler = asyncHandler(async (req, res) => {
     if (!ocrText) throw new ApiError(500, 'OCR failed');
 
     receipt.ocrRawText = ocrText;
-    receipt.status = 'processing';
+    receipt.status = 'ocr_completed';
     await receipt.save({ validateModifiedOnly: true });
 
     res.status(200).json(new ApiResponse(200, receipt, 'OCR ran successfully'));
@@ -85,7 +85,7 @@ const extractReceiptData: RequestHandler = asyncHandler(async (req, res) => {
   try {
     const extractedData = await extractDataFromOCR(receipt.ocrRawText);
     receipt.extractedData = extractedData;
-    receipt.status = 'completed';
+    receipt.status = 'ai_extraction_completed';
     await receipt.save({ validateModifiedOnly: true });
 
     res
@@ -163,9 +163,9 @@ const getReceiptById: RequestHandler = asyncHandler(
   }
 );
 
-const updateReceiptMetaData: RequestHandler = asyncHandler(
+const reviewReceipt: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
-    const { receiptId, transactionType, paymentStatus } = req.body;
+    const { receiptId, transactionType, paymentStatus, updatedData } = req.body;
 
     if (!receiptId) throw new ApiError(400, 'Receipt Id is required');
 
@@ -186,11 +186,18 @@ const updateReceiptMetaData: RequestHandler = asyncHandler(
     if (transactionType) receipt.transactionType = transactionType;
     if (paymentStatus) receipt.paymentStatus = paymentStatus;
 
+    const mergedData = updatedData
+      ? { ...receipt.extractedData, ...updatedData }
+      : receipt.extractedData;
+
+    receipt.extractedData=mergedData
+    receipt.status='completed'
+
     await receipt.save({ validateModifiedOnly: true });
 
     res
       .status(200)
-      .json(new ApiResponse(200, receipt, 'Receipt meta data added'));
+      .json(new ApiResponse(200, receipt, 'Receipt reviewed successfully'));
   }
 );
 
@@ -207,7 +214,7 @@ const receiptDashboardData: RequestHandler = asyncHandler(
       const monthlyEarnedTrend = await getMonthlyEarnedTrend(userId);
       const monthlySpentTrend = await getMonthlySpentTrend(userId);
       const lastFiveReceipts = await Receipt.find({ owner: userId })
-        .sort({ createdAt:-1 })
+        .sort({ createdAt: -1 })
         .limit(5)
         .select(
           'extractedData.total extractedData.date extractedData.vendor transactionType paymentStatus'
@@ -238,7 +245,7 @@ const receiptDashboardData: RequestHandler = asyncHandler(
   }
 );
 
-const searchReceiptsByVender: RequestHandler = asyncHandler(
+const searchReceiptsByVendor: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const { searchTerm } = req.query;
 
@@ -264,7 +271,7 @@ export {
   extractReceiptData,
   getReceipts,
   getReceiptById,
-  updateReceiptMetaData,
+  reviewReceipt,
   receiptDashboardData,
-  searchReceiptsByVender,
+  searchReceiptsByVendor,
 };
