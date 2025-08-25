@@ -248,7 +248,7 @@ const Dashboard = () => {
                             : "text-red-600"
                         )}
                       >
-                        {receipt.extractedData.vendor}
+                        {receipt.extractedData?.vendor}
                       </p>
                     </div>
 
@@ -263,7 +263,7 @@ const Dashboard = () => {
                     >
                       ₹{" "}
                       {Number(
-                        receipt.extractedData.total.$numberDecimal
+                        receipt.extractedData?.total.$numberDecimal
                       ).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
