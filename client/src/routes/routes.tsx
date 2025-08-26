@@ -5,7 +5,7 @@ import Dashboard from "../components/home/dashboard";
 import ProtectedRoute from "../components/auth/protectedRoute";
 import ProfilePage from "../pages/profilePage";
 import ReceiptPage from "../pages/receiptsPage";
-import ReviewNewReceipt from "../components/receipts/ReviewNewReceipt";
+import ReviewNewReceipt from "../components/receipts/reviewNewReceipt";
 
 const publicRoutes = [
   { path: "/", element: <HomePage /> },
