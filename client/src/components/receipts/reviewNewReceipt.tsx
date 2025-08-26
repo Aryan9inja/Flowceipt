@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { useNavigate } from "react-router-dom";
 import { clearReceiptState } from "../../store/slices/receiptSlice";
+import { reviewReceipt } from "../../services/receiptService";
 
 interface ItemType {
   name: string;
@@ -15,10 +16,12 @@ interface ReceiptFormData {
   date: string;
   total: number;
   items: ItemType[];
+  transactionType: "expense" | "income";
+  paymentStatus: "pending" | "completed";
 }
 
 const ReviewNewReceipt = () => {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { data, receiptId } = useSelector((state: RootState) => state.receipt);
 
@@ -28,7 +31,9 @@ const ReviewNewReceipt = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const normalizeDecimal = (val: { $numberDecimal: string } | number | undefined): number => {
+  const normalizeDecimal = (
+    val: { $numberDecimal: string } | number | undefined
+  ): number => {
     if (!val) return 0;
     if (typeof val === "object" && "$numberDecimal" in val) {
       return parseFloat(val.$numberDecimal);
@@ -37,22 +42,39 @@ const ReviewNewReceipt = () => {
   };
 
   const getDefaultValues = (): ReceiptFormData => {
-    if (!data) return { vendor: "", date: "", total: 0, items: [] };
+    if (!data) {
+      return {
+        vendor: "",
+        date: "",
+        total: 0,
+        items: [],
+        transactionType: "expense",
+        paymentStatus: "pending",
+      };
+    }
 
     return {
       vendor: data.vendor || "",
       date: formatDateForInput(data.date!) || "",
       total: normalizeDecimal(data.total),
-      items: data.items.map(item => ({
-        name: item.name,
-        price: normalizeDecimal(item.price),
-        _id: item._id
-      })) || []
+      items:
+        data.items.map((item) => ({
+          name: item.name,
+          price: normalizeDecimal(item.price),
+          _id: item._id,
+        })) || [],
+      transactionType: "expense",
+      paymentStatus: (data as any).paymentStatus || "pending",
     };
   };
 
-  const { register, control, handleSubmit, formState: { errors } } = useForm<ReceiptFormData>({
-    defaultValues: getDefaultValues()
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ReceiptFormData>({
+    defaultValues: getDefaultValues(),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -60,10 +82,31 @@ const ReviewNewReceipt = () => {
     name: "items",
   });
 
-  const onSubmit = (formData: ReceiptFormData) => {
-    console.log("Reviewed Data:", formData, "ReceiptId:", receiptId);
-    dispatch(clearReceiptState())
-    navigate("/");
+  const onSubmit = async (formData: ReceiptFormData) => {
+    try {
+      const reviewedReceipt = await reviewReceipt(
+        receiptId!,
+        formData.transactionType,
+        formData.paymentStatus,
+        {
+          vendor: formData.vendor,
+          date: formData.date,
+          total: { $numberDecimal: formData.total.toString() },
+          items: formData.items.map((item) => ({
+            name: item.name,
+            price: item.price,
+            _id: item._id,
+          })),
+        }
+      );
+
+      console.log("✅ Reviewed Receipt:", reviewedReceipt);
+
+      dispatch(clearReceiptState());
+      navigate("/");
+    } catch (err) {
+      console.error("❌ Review failed:", err);
+    }
   };
 
   if (!data) {
@@ -92,7 +135,11 @@ const ReviewNewReceipt = () => {
               {...register("vendor", { required: "Vendor is required" })}
               className="w-full border border-border bg-card rounded-lg p-3 text-text focus:ring-2 focus:ring-primary-focus outline-none"
             />
-            {errors.vendor && <p className="text-red-400 text-sm mt-1">{errors.vendor.message}</p>}
+            {errors.vendor && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.vendor.message}
+              </p>
+            )}
           </div>
 
           {/* Date */}
@@ -103,7 +150,9 @@ const ReviewNewReceipt = () => {
               {...register("date", { required: "Date is required" })}
               className="w-full border border-border bg-card rounded-lg p-3 text-text focus:ring-2 focus:ring-primary-focus outline-none"
             />
-            {errors.date && <p className="text-red-400 text-sm mt-1">{errors.date.message}</p>}
+            {errors.date && (
+              <p className="text-red-400 text-sm mt-1">{errors.date.message}</p>
+            )}
           </div>
 
           {/* Total */}
@@ -112,10 +161,61 @@ const ReviewNewReceipt = () => {
             <input
               type="number"
               step="0.01"
-              {...register("total", { required: "Total is required", valueAsNumber: true })}
+              {...register("total", {
+                required: "Total is required",
+                valueAsNumber: true,
+              })}
               className="w-full border border-border bg-card rounded-lg p-3 text-text focus:ring-2 focus:ring-primary-focus outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
-            {errors.total && <p className="text-red-400 text-sm mt-1">{errors.total.message}</p>}
+            {errors.total && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.total.message}
+              </p>
+            )}
+          </div>
+
+          {/* Transaction Type */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Transaction Type
+            </label>
+            <select
+              {...register("transactionType", {
+                required: "Transaction type is required",
+              })}
+              className="w-full border border-border bg-card rounded-lg p-3 text-text 
+     focus:ring-2 focus:ring-primary-focus outline-none cursor-pointer"
+            >
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+            {errors.transactionType && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.transactionType.message}
+              </p>
+            )}
+          </div>
+
+          {/* Payment Status */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Payment Status
+            </label>
+            <select
+              {...register("paymentStatus", {
+                required: "Payment status is required",
+              })}
+              className="w-full border border-border bg-card rounded-lg p-3 text-text 
+     focus:ring-2 focus:ring-primary-focus outline-none cursor-pointer"
+            >
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+            {errors.paymentStatus && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.paymentStatus.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -134,17 +234,25 @@ const ReviewNewReceipt = () => {
 
         <div className="space-y-3">
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-3 items-center bg-card rounded-lg p-3">
+            <div
+              key={field.id}
+              className="flex gap-3 items-center bg-card rounded-lg p-3"
+            >
               <input
                 type="text"
                 placeholder="Item name"
-                {...register(`items.${index}.name`, { required: "Item name is required" })}
+                {...register(`items.${index}.name`, {
+                  required: "Item name is required",
+                })}
                 className="flex-1 border border-border bg-bg rounded-md p-2 text-text focus:ring-2 focus:ring-primary-focus outline-none"
               />
               <input
                 type="number"
                 placeholder="Price"
-                {...register(`items.${index}.price`, { required: "Price is required", valueAsNumber: true })}
+                {...register(`items.${index}.price`, {
+                  required: "Price is required",
+                  valueAsNumber: true,
+                })}
                 className="w-28 border border-border bg-bg rounded-md p-2 text-text focus:ring-2 focus:ring-primary-focus outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
               <button
