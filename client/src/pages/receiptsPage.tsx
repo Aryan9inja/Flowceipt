@@ -17,12 +17,13 @@ import {
   processReceiptThunk,
   uploadReceiptThunk,
 } from "../store/thunks/receiptThunk";
+import UploadLoader from "../components/ui/Loaders/uploadLoader";
+import OcrLoader from "../components/ui/Loaders/ocrLoader";
+import AiLoader from "../components/ui/Loaders/aiLoader";
 
 const ReceiptPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loadingStep } = useSelector(
-    (state: RootState) => state.receipt
-  );
+  const { loadingStep } = useSelector((state: RootState) => state.receipt);
   const navigate = useNavigate();
 
   const [receipts, setReceipts] = useState<ReceiptResponse[]>([]);
@@ -34,22 +35,21 @@ const ReceiptPage = () => {
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (!e.target.files?.[0]) return;
+    if (!e.target.files?.[0]) return;
 
-  const uploadRes = await dispatch(uploadReceiptThunk(e.target.files[0]));
+    const uploadRes = await dispatch(uploadReceiptThunk(e.target.files[0]));
 
-  if (uploadReceiptThunk.fulfilled.match(uploadRes)) {
-    const newReceiptId = uploadRes.payload;
+    if (uploadReceiptThunk.fulfilled.match(uploadRes)) {
+      const newReceiptId = uploadRes.payload;
 
-    await dispatch(processReceiptThunk(newReceiptId));
-    await dispatch(extractDataThunk(newReceiptId));
+      await dispatch(processReceiptThunk(newReceiptId));
+      await dispatch(extractDataThunk(newReceiptId));
 
-    navigate("/receipts/review");
-  } else {
-    toast.error("Upload failed");
-  }
-};
-
+      navigate("/receipts/review");
+    } else {
+      toast.error("Upload failed");
+    }
+  };
 
   const fetchReceipts = useCallback(async (pageNum: number) => {
     try {
@@ -101,9 +101,9 @@ const ReceiptPage = () => {
     fetchReceipts(nextPage);
   };
 
-  if (loadingStep == "upload") return <div>Uploading...</div>;
-  if (loadingStep == "ocr") return <div>Getting OCR text...</div>;
-  if (loadingStep == "ai") return <div>Using Ai magic...</div>;
+  if (loadingStep == "upload") return <UploadLoader />;
+  if (loadingStep == "ocr") return <OcrLoader />;
+  if (loadingStep == "ai") return <AiLoader />;
 
   if (loadingStep == "none")
     return (
