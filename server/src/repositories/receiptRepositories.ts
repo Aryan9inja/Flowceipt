@@ -3,14 +3,8 @@ import mongoose from 'mongoose';
 
 const getTotalReceipts = async (userId: mongoose.Types.ObjectId) => {
   const result = await Receipt.aggregate([
-    {
-      $match: {
-        owner: userId,
-      },
-    },
-    {
-      $count: 'totalReceipts',
-    },
+    { $match: { owner: userId } },
+    { $count: 'totalReceipts' },
   ]);
   return result[0]?.totalReceipts || 0;
 };
@@ -67,12 +61,7 @@ const getMonthlyEarnedTrend = async (userId: mongoose.Types.ObjectId) => {
       $addFields: {
         parsedDate: {
           $ifNull: [
-            {
-              $dateFromString: {
-                dateString: '$extractedData.date',
-                format: '%d-%m-%Y',
-              },
-            },
+            { $dateFromString: { dateString: '$extractedData.date' } },
             '$createdAt',
           ],
         },
@@ -81,24 +70,15 @@ const getMonthlyEarnedTrend = async (userId: mongoose.Types.ObjectId) => {
     {
       $group: {
         _id: {
-          year: {
-            $year: '$parsedDate',
-          },
-          month: {
-            $month: '$parsedDate',
-          },
+          year: { $year: '$parsedDate' },
+          month: { $month: '$parsedDate' },
         },
         totalEarned: {
           $sum: { $toDouble: { $ifNull: ['$extractedData.total', 0] } },
         },
       },
     },
-    {
-      $sort: {
-        '_id.year': 1,
-        '_id.month': 1,
-      },
-    },
+    { $sort: { '_id.year': 1, '_id.month': 1 } },
     {
       $project: {
         _id: 0,
@@ -122,12 +102,7 @@ const getMonthlySpentTrend = async (userId: mongoose.Types.ObjectId) => {
       $addFields: {
         parsedDate: {
           $ifNull: [
-            {
-              $dateFromString: {
-                dateString: '$extractedData.date',
-                format: '%d-%m-%Y',
-              },
-            },
+            { $dateFromString: { dateString: '$extractedData.date' } },
             '$createdAt',
           ],
         },
@@ -136,24 +111,15 @@ const getMonthlySpentTrend = async (userId: mongoose.Types.ObjectId) => {
     {
       $group: {
         _id: {
-          year: {
-            $year: '$parsedDate',
-          },
-          month: {
-            $month: '$parsedDate',
-          },
+          year: { $year: '$parsedDate' },
+          month: { $month: '$parsedDate' },
         },
         totalSpent: {
           $sum: { $toDouble: { $ifNull: ['$extractedData.total', 0] } },
         },
       },
     },
-    {
-      $sort: {
-        '_id.year': 1,
-        '_id.month': 1,
-      },
-    },
+    { $sort: { '_id.year': 1, '_id.month': 1 } },
     {
       $project: {
         _id: 0,
