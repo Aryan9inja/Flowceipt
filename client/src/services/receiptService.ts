@@ -109,16 +109,17 @@ export const extractReceiptData = async (
   }
 };
 
-/** Add meta data to receipt */
-export const addReceiptMetaData = async (
+/** Review receipt data */
+export const reviewReceipt = async (
   receiptId: string,
   transactionType: "income" | "expense",
-  paymentStatus: "completed" | "pending"
+  paymentStatus: "completed" | "pending",
+  updatedData?: ReceiptResponse["extractedData"]
 ): Promise<ReceiptResponse> => {
   try {
     const response = await axios.post<ApiResponse<ReceiptResponse>>(
-      "/receipts/meta",
-      { receiptId, transactionType, paymentStatus }
+      "/receipts/review",
+      { receiptId, transactionType, paymentStatus, updatedData }
     );
     return response.data.data;
   } catch (error: any) {
