@@ -36,6 +36,7 @@ const uploadReceipt: RequestHandler = asyncHandler(async (req, res) => {
     owner: req.user?._id,
     imageUrl: cloudinaryUrl,
     status: 'pending',
+    transactionType:'expense'
   });
 
   res
@@ -54,7 +55,7 @@ const processReceipt: RequestHandler = asyncHandler(async (req, res) => {
   if (!receipt) throw new ApiError(404, 'Receipt not found');
 
   try {
-    const ocrText = await runOCR(receipt.imageUrl);
+    const ocrText = await runOCR(receipt.imageUrl!);
     if (!ocrText) throw new ApiError(500, 'OCR failed');
 
     receipt.ocrRawText = ocrText;
