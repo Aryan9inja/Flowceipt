@@ -8,6 +8,7 @@ export interface ReceiptItem {
   _id?: string;
   name: string;
   price?: number;
+  quantity?: number;
 }
 
 export interface ReceiptResponse {

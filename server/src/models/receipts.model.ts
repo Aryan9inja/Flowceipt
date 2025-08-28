@@ -9,14 +9,14 @@ export interface IReceipt extends Document {
     currency?: string;
     date?: string;
     vendor?: string;
-    items: { name: string; price?: Types.Decimal128 }[];
+    items: { name: string; price?: Types.Decimal128; quantity?: number }[];
   };
   ocrRawText?: string;
   client?: {
     name: string;
     email: string;
   };
-  items?: { name: string; price?: Types.Decimal128 }[];
+  items?: { name: string; price?: Types.Decimal128; quantity?: number }[];
   totalAmount?: Types.Decimal128;
   transactionType: 'expense' | 'income';
   status:
@@ -49,6 +49,7 @@ const receiptSchema = new Schema<IReceipt>(
         {
           name: { type: String },
           price: { type: Schema.Types.Decimal128, default: 0 },
+          quantity: { type: Number, default: 1 },
         },
       ],
     },
@@ -62,6 +63,7 @@ const receiptSchema = new Schema<IReceipt>(
       {
         name: { type: String },
         price: { type: Schema.Types.Decimal128, default: 0 },
+        quantity: { type: Number, default: 1 },
       },
     ],
     totalAmount: { type: Schema.Types.Decimal128 },

@@ -8,6 +8,7 @@ import { reviewReceipt } from "../../services/receiptService";
 interface ItemType {
   name: string;
   price: number;
+  quantity: number;
   _id?: string;
 }
 
@@ -61,6 +62,7 @@ const ReviewNewReceipt = () => {
         data.items.map((item) => ({
           name: item.name,
           price: normalizeDecimal(item.price),
+          quantity: item.quantity || 1,
           _id: item._id,
         })) || [],
       transactionType: "expense",
@@ -95,6 +97,7 @@ const ReviewNewReceipt = () => {
           items: formData.items.map((item) => ({
             name: item.name,
             price: item.price,
+            quantity: item.quantity,
             _id: item._id,
           })),
         }
@@ -248,6 +251,16 @@ const ReviewNewReceipt = () => {
               />
               <input
                 type="number"
+                placeholder="Qty"
+                {...register(`items.${index}.quantity`, {
+                  required: "Quantity is required",
+                  valueAsNumber: true,
+                  min: 1,
+                })}
+                className="w-16 border border-border bg-bg rounded-md p-2 text-text focus:ring-2 focus:ring-primary-focus outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <input
+                type="number"
                 placeholder="Price"
                 {...register(`items.${index}.price`, {
                   required: "Price is required",
@@ -268,7 +281,7 @@ const ReviewNewReceipt = () => {
 
         <button
           type="button"
-          onClick={() => append({ name: "", price: 0 })}
+          onClick={() => append({ name: "", price: 0, quantity: 1 })}
           className="mt-4 w-full border border-dashed border-border text-primary py-2 rounded-lg hover:bg-primary/50 transition cursor-pointer"
         >
           + Add Item

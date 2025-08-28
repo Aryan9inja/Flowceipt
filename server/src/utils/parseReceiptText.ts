@@ -11,7 +11,7 @@ export const parseReceiptText = (ocrText: string): ParsedData => {
   let vendor = '';
   let date = '';
   let total: any = undefined;
-  const items: { name: string; price?: any }[] = [];
+  const items: { name: string; price?: any; quantity?: number }[] = [];
 
   const dateRegex = /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\b/;
   const totalRegex =
@@ -41,7 +41,7 @@ export const parseReceiptText = (ocrText: string): ParsedData => {
 
     if (match && !/total/i.test(line)) {
       const name = line.replace(priceRegex, '').trim();
-      items.push({ name, price: match[1] });
+      items.push({ name, price: match[1], quantity: 1 });
     }
   }
 
