@@ -1,11 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { Home, FileText, BarChart, User, Sun, Moon } from "lucide-react";
+import { Home, FileText, User, Sun, Moon } from "lucide-react";
 import { useTheme } from "../../../hooks/useTheme";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
   { name: "Receipts", path: "/receipts", icon: FileText },
-  { name: "Analytics", path: "/analytics", icon: BarChart },
   { name: "Profile", path: "/profile", icon: User },
 ];
 
@@ -17,7 +16,7 @@ const MobileNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-bg border-t flex justify-around items-center py-2 sm:hidden">
+    <nav className="w-full bg-card flex items-center justify-between py-5 px-6 shadow-lg rounded-t-2xl gap-4">
       {navItems.map((item) => {
         const Icon = item.icon;
         return (

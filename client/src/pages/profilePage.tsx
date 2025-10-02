@@ -12,13 +12,13 @@ const ProfilePage = () => {
       </div>
 
       {/* Main content */}
-      <div className="w-full bg-bg">
+      <div className="w-full bg-bg sm:ml-64">
         <ProfileInfo />
         <ActivityPanel />
       </div>
 
       {/* Mobile bottom nav */}
-      <div className="sm:hidden">
+      <div className="sm:hidden  w-full fixed bottom-0 left-0 z-50">
         <MobileNav />
       </div>
     </div>

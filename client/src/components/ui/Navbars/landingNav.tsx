@@ -1,17 +1,17 @@
 import { useState } from "react";
 import ThemeSlider from "../themeSlider";
-import { Link } from "react-router-dom";
 import Logo from "../../../assets/Logo.png";
 import DarkLogo from "../../../assets/DarkLogo.png";
 import { useTheme } from "../../../hooks/useTheme";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function LandingNav() {
   const { theme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="h-16 flex items-center justify-between border-b border-b-border px-4 sm:px-8 relative">
+    <nav className="w-full bg-card flex items-center justify-between py-6 px-8 shadow-lg gap-4 relative">
       <Link to="/" className="flex items-center">
         <img
           src={theme === "dark" ? DarkLogo : Logo}
@@ -22,7 +22,6 @@ function LandingNav() {
 
       <div className="flex items-center gap-4">
         <ThemeSlider />
-
         <div className="hidden md:flex items-center gap-4">
           <Link
             to="/auth"
@@ -41,7 +40,6 @@ function LandingNav() {
             Login
           </Link>
         </div>
-
         {/* Mobile hamburger button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -57,16 +55,20 @@ function LandingNav() {
       </div>
 
       {menuOpen && (
-        <div className="absolute top-16 right-0 w-48 bg-white dark:bg-gray-900 border border-border rounded-lg shadow-md p-4 flex flex-col gap-3 md:hidden">
+        <div className="absolute top-20 right-0 w-48 bg-white dark:bg-gray-900 border border-border rounded-lg shadow-md p-4 flex flex-col gap-3 md:hidden z-50">
           <Link
-            to="/register"
+            to="/auth"
+            aria-label="Register"
+            state={{ initialMode: "signup" }}
             className="bg-primary hover:bg-primary-hover text-white/80 py-2 px-4 rounded-2xl text-center"
             onClick={() => setMenuOpen(false)}
           >
             Register
           </Link>
           <Link
-            to="/login"
+            to="/auth"
+            aria-label="Login"
+            state={{ initialMode: "login" }}
             className="bg-primary hover:bg-primary-hover text-white/80 py-2 px-4 rounded-2xl text-center"
             onClick={() => setMenuOpen(false)}
           >
