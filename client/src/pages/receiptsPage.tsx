@@ -114,7 +114,7 @@ const ReceiptPage = () => {
         </div>
 
         {/* Main content */}
-        <div className="w-full bg-bg overflow-hidden">
+        <div className="w-full bg-bg overflow-hidden sm:ml-64">
           <Toaster position="top-center" richColors />
           <SearchReceipts
             searchTerm={searchTerm}
@@ -127,7 +127,7 @@ const ReceiptPage = () => {
             loading={loading}
           />
         </div>
-        <div className="absolute bottom-22 sm:bottom-6 right-6">
+        <div className="absolute bottom-28 sm:bottom-6 right-3">
           <label className="bg-primary rounded-full text-text p-4 shadow-xl cursor-pointer hover:bg-primary-hover transition">
             New Receipt
             <input
@@ -140,7 +140,7 @@ const ReceiptPage = () => {
         </div>
 
         {/* Mobile bottom nav */}
-        <div className="sm:hidden">
+        <div className="sm:hidden w-full fixed bottom-0 left-0 z-50">
           <MobileNav />
         </div>
       </div>
