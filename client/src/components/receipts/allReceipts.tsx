@@ -32,25 +32,27 @@ const AllReceipts = ({ receipts = [], loadMore, hasMore, loading }: Props) => {
   }, [hasMore, loadMore, loading]);
 
   return (
-    <div className="px-2 h-[calc(100%-8rem)] overflow-y-scroll">
-      <div className="top-0 sticky">
+    <section className="w-full max-w-4xl mx-auto px-4 py-6 flex flex-col gap-4 bg-gradient-to-br from-bg to-card/80 rounded-xl shadow-lg min-h-[60vh]">
+      <div className="sticky top-0 z-10">
         <InfoBar />
       </div>
-      {receipts.map((r) => (
-        <ReceiptCard
-          key={r._id}
-          vendor={r.extractedData.vendor ?? "Unknown"}
-          total={r.extractedData.total?.$numberDecimal ?? "Null"}
-          date={r.extractedData.date ?? "Unknown day"}
-          transactionType={r.transactionType ?? "Expense"}
-          paymentStatus={r.paymentStatus}
-        />
-      ))}
+      <div className="flex flex-col gap-3">
+        {receipts.map((r) => (
+          <ReceiptCard
+            key={r._id}
+            vendor={r.extractedData.vendor ?? "Unknown"}
+            total={r.extractedData.total?.$numberDecimal ?? "Null"}
+            date={r.extractedData.date ?? "Unknown day"}
+            transactionType={r.transactionType ?? "Expense"}
+            paymentStatus={r.paymentStatus}
+          />
+        ))}
+      </div>
       <div ref={loaderRef} className="h-12 flex items-center justify-center">
         {loading && <p className="text-info">Loading...</p>}
         {!hasMore && <p className="text-muted">No more receipts</p>}
       </div>
-    </div>
+    </section>
   );
 };
 
