@@ -107,41 +107,42 @@ const ReceiptPage = () => {
 
   if (loadingStep == "none")
     return (
-      <div className="flex h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-bg to-card/80 flex">
         {/* Desktop sidebar */}
-        <div className="hidden sm:flex">
+        <div className="hidden sm:block">
           <DesktopNav />
         </div>
 
         {/* Main content */}
-        <div className="w-full bg-bg overflow-hidden sm:ml-64">
+        <div className="flex-1 flex flex-col items-center sm:ml-64 mb-18 sm:mb-0">
           <Toaster position="top-center" richColors />
-          <SearchReceipts
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
-          <AllReceipts
-            receipts={searchTerm ? searchRes : receipts}
-            loadMore={loadMore}
-            hasMore={hasMore}
-            loading={loading}
-          />
-        </div>
-        <div className="absolute bottom-28 sm:bottom-6 right-3">
-          <label className="bg-primary rounded-full text-text p-4 shadow-xl cursor-pointer hover:bg-primary-hover transition">
-            New Receipt
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleUpload}
+          <main className="w-full max-w-5xl px-4 py-8 flex flex-col gap-8">
+            <SearchReceipts
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
             />
-          </label>
-        </div>
-
-        {/* Mobile bottom nav */}
-        <div className="sm:hidden w-full fixed bottom-0 left-0 z-50">
-          <MobileNav />
+            <AllReceipts
+              receipts={searchTerm ? searchRes : receipts}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loading={loading}
+            />
+          </main>
+          <div className="fixed bottom-24 right-6 z-40">
+            <label className="bg-primary rounded-full text-text px-6 py-3 shadow-xl cursor-pointer hover:bg-primary-hover transition text-lg font-semibold">
+              New Receipt
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleUpload}
+              />
+            </label>
+          </div>
+          {/* Mobile bottom nav */}
+          <div className="sm:hidden w-full fixed bottom-0 left-0 z-50">
+            <MobileNav />
+          </div>
         </div>
       </div>
     );
